@@ -14,6 +14,8 @@
 
 用户完成登录后，可以上传视频并在工作台管理解析任务；选择视频并输入分析目标后，可以手动选择分析模式，也可以交给 Agent 自动判断。工作台会展示结构化结论、时间戳证据、执行计划、阶段轨迹与质量评估，并支持基于同一视频继续追问；追问历史会通过 Redis 保存，模型可结合多轮对话上下文作答。
 
+代码仓库：<https://github.com/qinghuan0606-star/videotrace>
+
 ## 核心功能
 
 长视频处理天然是**长耗时、高资源消耗、外部调用成本敏感**的场景。VideoTrace 的设计都围绕这一背景展开，可以概括为四层能力。
@@ -191,6 +193,27 @@ npm run dev
 
 只查看前端 Agent 工作台时，可以打开 `http://localhost:5173/?demo`。Demo 模式使用内置示例数据，不依赖后端服务。
 
+### Windows（PowerShell）
+
+`scripts/` 下提供了与 shell 脚本等价的 PowerShell 版本，适合在 Windows 本机开发：
+
+```powershell
+.\scripts\dev-up.ps1        # 校验环境、启动中间件、创建分析主题
+.\scripts\start-server.ps1  # 载入 .env 并启动后端（localhost:9090）
+.\scripts\start-client.ps1  # npm ci + 启动前端（localhost:5173）
+.\scripts\dev-down.ps1      # 停止中间件，保留数据目录
+```
+
+- `start-client.ps1` 加 `-SkipInstall` 可跳过 `npm ci`
+- `dev-down.ps1` 加 `-RemoveVolumes` 会连同 RocketMQ 命名卷一并删除
+- 启动脚本都会自动读取项目根目录的 `.env`，不需要手工执行 `set -a` 那几步
+
+如果 PowerShell 拒绝执行脚本，在当前会话内放开策略即可：
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
 ### 常见问题
 
 | 现象 | 处理方式 |
@@ -216,6 +239,7 @@ VideoTrace
 ├── client/              # Vue 3 工作台
 ├── server/              # Spring Boot API 与 Video Agent
 ├── rocketmq/            # Broker 配置
+├── scripts/             # 中间件启停与前后端启动脚本（bash 与 PowerShell）
 ├── docker-compose.yml   # 中间件编排
 └── .env.example         # 本地配置模板
 ```
